@@ -1,6 +1,10 @@
 ## Начало работы <br>
 
-При скачивании проекта создать файл .env по примеру .env.example.<br>
+В работе используется <br>
+Laravel 5.8 <br>
+MySQL 5.7 <br>
+Для работы создать базу данных на сервере `json_api`. <br>
+При скачивании проекта создать файл `.env` по примеру `.env.example`<br>
 Запустить команду `composer install` и миграции с помощью команды `php artisan migration`.<br>
 После для демонстрации запустить `php artisan category::add`, а затем
 `php artisan product:add`
