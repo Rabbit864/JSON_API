@@ -30,41 +30,59 @@ class CategoriesController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+         $request->validate([
 
             'name'=>'required|max:200',
-            'external_id' => 'required',
+            'external_id' => 'required|numeric',
+            'parent_id' => 'nullable|numeric'
 
+        ],[
+         'name.required' => 'Поле Название категории обязательно для заполнения',
+          'name.max'  => 'Поле не должно быть больше 200 символов',
+          'external_id.required' => 'Поле external_id обязательно для заполнения'
         ]);
+
+
 
         $category = Category::where('external_id',$request -> input('external_id'));
 
+        //Проверка на существование категории
         if($category -> count()){
 
             return Response::json(['success' => false,'error' => "Данная категория уже существует"]);
 
         }
 
-        return Category::create($request -> only(['name','external_id','parent_id']));
+        $category =  Category::create($request -> only(['name','external_id','parent_id']));
+
+        return response()->json($category,201);
     }
 
     /**
      * Display the specified resource.
      *
      * @param int $id
-     * @return CategoriesResource|JsonResponse
+     * @return CategoryResource
      */
     public function show($id)
     {
 
-        $category = Category::where("id",$id)->first();
+        $category = Category::find($id);
         if(is_null($category)){
+
             return Response::json(['success' => false,'error' => "Данной категории не существует"]);
+
         }
 
-        $categories = Category::find($id)->children;
+        $children_categories = $category->children;
 
-        return new CategoriesResource($categories);
+        if($children_categories -> isEmpty()){
+
+            return new CategoryResource($category);
+
+        }
+
+        return new CategoriesResource($children_categories);
     }
 
     /**
@@ -77,10 +95,14 @@ class CategoriesController extends Controller
     public function update(Request $request, $category_id)
     {
         $category = Category::find($category_id);
+
         if(is_null($category)){
             return Response::json(['success' => false,'error' => "Данной категории не существует"]);
         }
+
         $category -> update($request->only(['name','parent_id']));
+
+        return response()->json($category, 200);
     }
 
     /**
@@ -92,10 +114,13 @@ class CategoriesController extends Controller
     public function destroy($id)
     {
         $category = Category::find($id);
+
         if(is_null($category)){
             return Response::json(['success' => false,'error' => "Данной категории не существует"]);
         }
 
         $category ->delete();
+
+        return response()->json(null, 204);
     }
 }

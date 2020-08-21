@@ -63,7 +63,7 @@ class ProductsController extends Controller
     {
         $request->validate([
             'name'=>'required|max:200',
-            'external_id' => 'required',
+            'external_id' => 'required|numeric',
             'description' => 'required|max:1000',
         ]);
 
